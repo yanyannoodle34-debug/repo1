@@ -1,17 +1,28 @@
 #!/data/data/com.termux/files/usr/bin/bash
 set -e
 
-echo "[1/5] Updating packages…"
+# Guard: must be on Termux native filesystem (ext4), not Android shared storage (FAT)
+if [[ "$PWD" == /storage/* || "$PWD" == /sdcard/* ]]; then
+  echo ""
+  echo "ERROR: Project is on Android shared storage (FAT filesystem)."
+  echo "FAT does not support symlinks — npm install fails with EACCES."
+  echo ""
+  echo "Move the project to Termux home first, then re-run:"
+  echo "  cp -r \"$PWD\" ~/repo1"
+  echo "  cd ~/repo1"
+  echo "  bash termux-setup.sh"
+  echo ""
+  exit 1
+fi
+
+echo "[1/4] Updating packages…"
 pkg update -y && pkg upgrade -y
 pkg install -y nodejs python git
 
-echo "[2/5] Installing Python Telegram Bot library…"
-pip install python-telegram-bot
-
-echo "[3/5] Creating data directories…"
+echo "[2/4] Creating data directories…"
 mkdir -p ~/.tbr/storage ~/.termux/boot
 
-echo "[4/5] Copying environment template…"
+echo "[3/4] Copying environment template…"
 if [ ! -f .env ]; then
   cp .env.example .env
   echo ""
@@ -22,7 +33,7 @@ if [ ! -f .env ]; then
   echo ""
 fi
 
-echo "[5/5] Creating Termux:Boot auto-start script…"
+echo "[4/4] Creating Termux:Boot auto-start script…"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 cat > ~/.termux/boot/start-tbr.sh <<EOF
 #!/data/data/com.termux/files/usr/bin/bash

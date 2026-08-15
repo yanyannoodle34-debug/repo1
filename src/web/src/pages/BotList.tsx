@@ -3,10 +3,6 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { trpc } from "../lib/trpc.js";
 
-function statusBadge(status: string) {
-  return <span className={`badge ${status}`}>{status}</span>;
-}
-
 export default function BotList() {
   const qc = useQueryClient();
   const { data: bots = [], isLoading } = useQuery({
@@ -27,15 +23,16 @@ export default function BotList() {
   return (
     <div className="page">
       <div className="page-header">
-        <span className="page-title">Your Bots</span>
+        <span className="page-title">Bots</span>
         <Link to="/upload"><button>+ Upload Bot</button></Link>
       </div>
 
       {isLoading && <div style={{ color: "var(--muted)" }}>Loading…</div>}
 
       {!isLoading && bots.length === 0 && (
-        <div className="card" style={{ textAlign: "center", padding: 40, color: "var(--muted)" }}>
-          No bots yet. <Link to="/upload">Upload your first bot</Link>.
+        <div className="card empty-state">
+          <p>No bots yet.</p>
+          <Link to="/upload"><button>Upload your first bot</button></Link>
         </div>
       )}
 
@@ -57,20 +54,30 @@ export default function BotList() {
                 const canStop = ["running", "starting"].includes(bot.status);
                 return (
                   <tr key={bot.id}>
-                    <td><Link to={`/bots/${bot.id}`} style={{ fontWeight: 500 }}>{bot.name}</Link></td>
+                    <td>
+                      <Link to={`/bots/${bot.id}`} style={{ fontWeight: 500, color: "var(--text)" }}>
+                        {bot.name}
+                      </Link>
+                    </td>
                     <td style={{ color: "var(--muted)", fontSize: 12 }}>{bot.runtime}</td>
-                    <td>{statusBadge(bot.status)}</td>
+                    <td><span className={`badge ${bot.status}`}>{bot.status}</span></td>
                     <td style={{ color: "var(--muted)", fontSize: 12 }}>
                       {bot.lastStartedAt ? new Date(bot.lastStartedAt).toLocaleString() : "—"}
                     </td>
-                    <td style={{ display: "flex", gap: 6, justifyContent: "flex-end" }}>
-                      {canStart && (
-                        <button className="sm" disabled={startMut.isPending} onClick={() => startMut.mutate(bot.id)}>Start</button>
-                      )}
-                      {canStop && (
-                        <button className="sm danger" disabled={stopMut.isPending} onClick={() => stopMut.mutate(bot.id)}>Stop</button>
-                      )}
-                      <Link to={`/bots/${bot.id}`}><button className="ghost sm">Logs</button></Link>
+                    <td>
+                      <div style={{ display: "flex", gap: 6, justifyContent: "flex-end" }}>
+                        {canStart && (
+                          <button className="sm" disabled={startMut.isPending} onClick={() => startMut.mutate(bot.id)}>
+                            ▶ Start
+                          </button>
+                        )}
+                        {canStop && (
+                          <button className="sm danger" disabled={stopMut.isPending} onClick={() => stopMut.mutate(bot.id)}>
+                            ■ Stop
+                          </button>
+                        )}
+                        <Link to={`/bots/${bot.id}`}><button className="ghost sm">Logs</button></Link>
+                      </div>
                     </td>
                   </tr>
                 );

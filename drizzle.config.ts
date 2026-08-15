@@ -9,5 +9,6 @@ export default defineConfig({
   schema: "./src/drizzle/schema.ts",
   out: "./drizzle",
   dialect: "sqlite",
-  dbCredentials: { url: dbPath },
+  driver: "turso",
+  dbCredentials: { url: `file:${dbPath}` },
 });

@@ -90,7 +90,7 @@ export default function BotDetail() {
           {logs.length === 0 && <span style={{ color: "var(--muted)" }}>No logs yet.</span>}
           {[...logs].reverse().map((log) => (
             <div key={log.id} className={`log-line ${log.level}`}>
-              <span style={{ color: "var(--muted)", marginRight: 8 }}>{new Date(log.createdAt).toLocaleTimeString()}</span>
+              <span className="log-ts">{new Date(log.createdAt).toLocaleTimeString()}</span>
               {log.message}
             </div>
           ))}

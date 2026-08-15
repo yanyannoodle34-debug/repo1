@@ -1,5 +1,5 @@
-import Database from "better-sqlite3";
-import { drizzle } from "drizzle-orm/better-sqlite3";
+import { DatabaseSync } from "node:sqlite";
+import { drizzle } from "drizzle-orm/node-sqlite";
 import * as schema from "../drizzle/schema.js";
 import path from "path";
 import os from "os";
@@ -8,9 +8,9 @@ import fs from "fs";
 function openDb() {
   const dbPath = process.env.DB_PATH ?? path.join(os.homedir(), ".tbr", "db.sqlite");
   fs.mkdirSync(path.dirname(dbPath), { recursive: true });
-  const sqlite = new Database(dbPath);
-  sqlite.pragma("journal_mode = WAL");
-  sqlite.pragma("foreign_keys = ON");
+  const sqlite = new DatabaseSync(dbPath);
+  sqlite.exec("PRAGMA journal_mode = WAL");
+  sqlite.exec("PRAGMA foreign_keys = ON");
   return drizzle(sqlite, { schema });
 }
 
